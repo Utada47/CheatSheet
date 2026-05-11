@@ -1,11 +1,11 @@
-package com.example.konversisuhu;
+package com.example.a13120240038_karima;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
@@ -13,46 +13,43 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
 
-    EditText edtSuhu;
+    EditText edtAngka1, edtAngka2;
     RadioGroup radioGroup;
-
-    RadioButton rbCelciusFahrenheit;
-    RadioButton rbCelciusKelvin;
-    RadioButton rbFahrenheitCelcius;
-
     TextView txtHasil;
-    Button btnReset;
+    Button btnClear;
 
+    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        edtSuhu = findViewById(R.id.edtSuhu);
+        edtAngka1 = findViewById(R.id.edtAngka1);
+        edtAngka2 = findViewById(R.id.edtAngka2);
 
         radioGroup = findViewById(R.id.radioGroup);
 
-        rbCelciusFahrenheit = findViewById(R.id.rbCelciusFahrenheit);
-        rbCelciusKelvin = findViewById(R.id.rbCelciusKelvin);
-        rbFahrenheitCelcius = findViewById(R.id.rbFahrenheitCelcius);
-
         txtHasil = findViewById(R.id.txtHasil);
-        btnReset = findViewById(R.id.btnReset);
+
+        btnClear = findViewById(R.id.btnClear);
 
         // Event saat text berubah
-        edtSuhu.addTextChangedListener(textWatcher);
+        edtAngka1.addTextChangedListener(textWatcher);
+        edtAngka2.addTextChangedListener(textWatcher);
 
-        // Event radio button
-        radioGroup.setOnCheckedChangeListener((group, checkedId) -> hitungKonversi());
+        // Event saat radio button dipilih
+        radioGroup.setOnCheckedChangeListener((group, checkedId) -> hitung());
 
         // Tombol reset
-        btnReset.setOnClickListener(v -> {
-            edtSuhu.setText("");
+        btnClear.setOnClickListener(v -> {
+            edtAngka1.setText("");
+            edtAngka2.setText("");
             radioGroup.clearCheck();
             txtHasil.setText("Hasil : 0");
         });
     }
 
+    // TextWatcher
     TextWatcher textWatcher = new TextWatcher() {
         @Override
         public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -61,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onTextChanged(CharSequence s, int start, int before, int count) {
-            hitungKonversi();
+            hitung();
         }
 
         @Override
@@ -70,38 +67,46 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-    private void hitungKonversi() {
+    // Method hitung
+    private void hitung() {
 
-        String suhuStr = edtSuhu.getText().toString();
+        String angka1Str = edtAngka1.getText().toString();
+        String angka2Str = edtAngka2.getText().toString();
 
-        if (suhuStr.isEmpty()) {
+        if (angka1Str.isEmpty() || angka2Str.isEmpty()) {
             txtHasil.setText("Hasil : 0");
             return;
         }
 
-        double suhu = Double.parseDouble(suhuStr);
+        double angka1 = Double.parseDouble(angka1Str);
+        double angka2 = Double.parseDouble(angka2Str);
 
         double hasil = 0;
-        String satuan = "";
 
-        if (rbCelciusFahrenheit.isChecked()) {
+        int selectedId = radioGroup.getCheckedRadioButtonId();
 
-            hasil = (suhu * 9/5) + 32;
-            satuan = "°F";
+        if (selectedId == R.id.rbTambah) {
 
+            hasil = angka1 + angka2;
+
+        } else if (selectedId == R.id.rbKurang) {
+
+            hasil = angka1 - angka2;
+
+        } else if (selectedId == R.id.rbKali) {
+
+            hasil = angka1 * angka2;
+
+        } else if (selectedId == R.id.rbBagi) {
+
+            if (angka2 != 0) {
+                hasil = angka1 / angka2;
+            } else {
+                txtHasil.setText("Tidak bisa dibagi 0");
+                return;
+            }
         }
-        else if (rbCelciusKelvin.isChecked()) {
 
-            hasil = suhu + 273.15;
-            satuan = "K";
-
-        }
-        else if (rbFahrenheitCelcius.isChecked()) {
-
-            hasil = (suhu - 32) * 5/9;
-            satuan = "°C";
-        }
-
-        txtHasil.setText("Hasil : " + String.format("%.2f", hasil) + " " + satuan);
+        txtHasil.setText("Hasil : " + hasil);
     }
 }
